@@ -1,6 +1,6 @@
 name: CI — Integración Continua
 
- on:
+on:
     push:
       branches-ignore:
         - deploy
