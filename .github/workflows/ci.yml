@@ -40,7 +40,7 @@ jobs:
         run: |
           docker build --platform linux/amd64 \
             -t innovatech-ms-ventas:ci-test \
-            ./back-Ventas_SpringBoot/Springboot-API-REST
+            ./back-Ventas_SpringBoot
           docker image inspect innovatech-ms-ventas:ci-test
 
   # ═══════════════════════════════════════════
@@ -73,7 +73,7 @@ jobs:
         run: |
           docker build --platform linux/amd64 \
             -t innovatech-ms-despachos:ci-test \
-            ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
+            ./back-Despachos_SpringBoot
           docker image inspect innovatech-ms-despachos:ci-test
 
   # ═══════════════════════════════════════════
