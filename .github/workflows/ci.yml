@@ -1,0 +1,117 @@
+name: CI — Integración Continua
+
+on:
+  push:
+    branches-ignore:
+      - deploy
+  pull_request:
+    branches-ignore:
+      - deploy
+
+jobs:
+
+  # ═══════════════════════════════════════════
+  # JOB 1 — Compilar y testear ms-ventas
+  # ═══════════════════════════════════════════
+  build-ms-ventas:
+    name: Build y Test — ms-ventas
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compilar ms-ventas
+        working-directory: ./back-Ventas_SpringBoot/Springboot-API-REST
+        run: mvn compile -B
+
+      - name: Ejecutar tests ms-ventas
+        working-directory: ./back-Ventas_SpringBoot/Springboot-API-REST
+        run: mvn test -B
+
+      - name: Verificar build del Dockerfile ms-ventas
+        run: |
+          docker build --platform linux/amd64 \
+            -t innovatech-ms-ventas:ci-test \
+            ./back-Ventas_SpringBoot/Springboot-API-REST
+          docker image inspect innovatech-ms-ventas:ci-test
+
+  # ═══════════════════════════════════════════
+  # JOB 2 — Compilar y testear ms-despachos
+  # ═══════════════════════════════════════════
+  build-ms-despachos:
+    name: Build y Test — ms-despachos
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compilar ms-despachos
+        working-directory: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
+        run: mvn compile -B
+
+      - name: Ejecutar tests ms-despachos
+        working-directory: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
+        run: mvn test -B
+
+      - name: Verificar build del Dockerfile ms-despachos
+        run: |
+          docker build --platform linux/amd64 \
+            -t innovatech-ms-despachos:ci-test \
+            ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
+          docker image inspect innovatech-ms-despachos:ci-test
+
+  # ═══════════════════════════════════════════
+  # JOB 3 — Build del frontend
+  # ═══════════════════════════════════════════
+  build-frontend:
+    name: Build — Frontend React/Vite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ./front_despacho/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: ./front_despacho
+        run: npm ci
+
+      - name: Build de producción
+        working-directory: ./front_despacho
+        env:
+          VITE_API_VENTAS_URL: http://localhost:8081
+          VITE_API_DESPACHOS_URL: http://localhost:8082
+        run: npm run build
+
+      - name: Verificar build del Dockerfile frontend
+        run: |
+          docker build --platform linux/amd64 \
+            --build-arg VITE_API_VENTAS_URL=http://localhost:8081 \
+            --build-arg VITE_API_DESPACHOS_URL=http://localhost:8082 \
+            -t innovatech-frontend:ci-test \
+            ./front_despacho
+          docker image inspect innovatech-frontend:ci-test
+
+
