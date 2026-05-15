@@ -1,12 +1,12 @@
 name: CI — Integración Continua
 
  on:
-  push:
-    branches-ignore:
-      - deploy
-  pull_request:
-    branches-ignore:
-      - deploy
+    push:
+      branches-ignore:
+        - deploy
+    pull_request:
+      branches-ignore:
+        - deploy
 
 jobs:
 
