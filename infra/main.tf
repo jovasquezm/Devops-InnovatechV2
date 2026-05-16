@@ -276,7 +276,7 @@ resource "aws_ecs_task_definition" "app" {
       ]
 
       healthCheck = {
-        command     = ["CMD-SHELL", "wget -qO- http://localhost:8081/ || exit 1"]
+        command     = ["CMD-SHELL", "wget -qO- http://localhost:8081/api/v1/ventas || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 5
@@ -334,7 +334,7 @@ resource "aws_ecs_task_definition" "app" {
       ]
 
       healthCheck = {
-        command     = ["CMD-SHELL", "wget -qO- http://localhost:8082/ || exit 1"]
+        command     = ["CMD-SHELL", "wget -qO- http://localhost:8082/api/v1/despachos || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 5
