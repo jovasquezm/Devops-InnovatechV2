@@ -64,8 +64,8 @@ jobs:
       - name: Build y Push frontend
         run: |
           docker build --platform linux/amd64 \
-            --build-arg VITE_API_VENTAS_URL=${{ secrets.VITE_API_VENTAS_URL }} \
-            --build-arg VITE_API_DESPACHOS_URL=${{ secrets.VITE_API_DESPACHOS_URL }} \
+            --build-arg VITE_API_VENTAS_URL="${{ secrets.VITE_API_VENTAS_URL }}" \
+            --build-arg VITE_API_DESPACHOS_URL="${{ secrets.VITE_API_DESPACHOS_URL }}" \
             -t ${{ env.ECR_REGISTRY }}/innovatech-frontend:${{ github.sha }} \
             -t ${{ env.ECR_REGISTRY }}/innovatech-frontend:latest \
             ./front_despacho
