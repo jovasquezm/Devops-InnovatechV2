@@ -31,14 +31,14 @@ services:
       interval: 20s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 60s
 
   # ─────────────────────────────────────────────
   # MICROSERVICIO — Ventas (puerto 8081)
   # ─────────────────────────────────────────────
   ms-ventas:
     build:
-      context: ./back-Ventas_SpringBoot/Springboot-API-REST
+      context: ./back-Ventas_SpringBoot/
       dockerfile: Dockerfile
     container_name: innovatech-ms-ventas
     restart: unless-stopped
@@ -64,7 +64,7 @@ services:
   # ─────────────────────────────────────────────
   ms-despachos:
     build:
-      context: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
+      context: ./back-Despachos_SpringBoot/
       dockerfile: Dockerfile
     container_name: innovatech-ms-despachos
     restart: unless-stopped
