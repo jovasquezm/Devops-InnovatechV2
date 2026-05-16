@@ -100,8 +100,6 @@ services:
     depends_on:
       - ms-ventas
       - ms-despachos
-    ports:
-      - "80:80"
     networks:
       - frontend-net
 

@@ -25,7 +25,7 @@ export const FormDespacho = ({ venta, onClose }) => {
 
     try {
       await axios.put(
-        `http://192.168.30/api/v1/ventas/${venta.idVenta}`,
+        `${import.meta.env.VITE_API_VENTAS_URL}/api/v1/ventas/${venta.idVenta}`,
         jsonDataSales,
         {
           headers:{
@@ -34,12 +34,16 @@ export const FormDespacho = ({ venta, onClose }) => {
       }
         }
       );
-      await axios.post("http://192.168.320/api/v1/despachos", jsonData, {
-        headers:{
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-    }
-      });
+      await axios.post(
+        `${import.meta.env.VITE_API_DESPACHOS_URL}/api/v1/despachos`,
+        jsonData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      );
       Swal.fire({
         title: "Despacho registrado 🛻!",
         text: "El despacho ha sido generado con éxito en la base de datos",
