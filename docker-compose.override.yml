@@ -16,3 +16,5 @@ services:
 
   frontend:
     image: innovatech-frontend:local
+    ports:
+      - "80:8080"

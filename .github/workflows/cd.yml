@@ -1,12 +1,13 @@
 name: CI/CD — Innovatech Chile
 
 # Trigger: solo al hacer push sobre la rama deploy
-
+#cmabiosqafkldshfds
 
 on:
   push:
     branches:
       - deploy
+  workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1

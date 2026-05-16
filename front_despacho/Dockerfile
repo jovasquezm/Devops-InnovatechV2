@@ -14,8 +14,10 @@ RUN npm ci
 COPY . .
 
 # Variables de entorno en tiempo de build (sobreescribibles con --build-arg)
-ARG VITE_API_URL=http://localhost:8080
-ENV VITE_API_URL=${VITE_API_URL}
+ARG VITE_API_VENTAS_URL=http://localhost:8081
+ARG VITE_API_DESPACHOS_URL=http://localhost:8082
+ENV VITE_API_VENTAS_URL=${VITE_API_VENTAS_URL}
+ENV VITE_API_DESPACHOS_URL=${VITE_API_DESPACHOS_URL}
 
 
 RUN npm run build
@@ -38,6 +40,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 RUN chown -R nginx:nginx /usr/share/nginx/html \
     && chown -R nginx:nginx /var/cache/nginx \
     && chown -R nginx:nginx /var/log/nginx \
+    && chown -R nginx:nginx /run \
+    && chmod -R 755 /etc/nginx/conf.d/ \
     && touch /var/run/nginx.pid \
     && chown nginx:nginx /var/run/nginx.pid
 
