@@ -1,0 +1,11 @@
+# ─────────────────────────────────────────────
+# terraform.tfvars — Innovatech Chile
+# IMPORTANTE: Este archivo va en .gitignore
+#             Nunca subir valores reales al repositorio
+# ─────────────────────────────────────────────
+
+aws_region    = "us-east-1"
+project_name  = "innovatech"
+db_password   = "TuPasswordSegura123!"
+db_name       = "innovatech_db"
+key_pair_name = "nombre-de-tu-keypair-en-aws"
