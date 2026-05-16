@@ -17,6 +17,8 @@ RUN mvn package -DskipTests -B
 # ─────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-alpine AS production
 
+RUN apk add --no-cache wget
+
 WORKDIR /app
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
