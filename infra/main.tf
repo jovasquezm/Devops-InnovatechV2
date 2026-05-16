@@ -280,7 +280,7 @@ resource "aws_ecs_task_definition" "app" {
         interval    = 30
         timeout     = 5
         retries     = 5
-        startPeriod = 120
+        startPeriod = 180
       }
 
       environment = [
@@ -338,7 +338,7 @@ resource "aws_ecs_task_definition" "app" {
         interval    = 30
         timeout     = 5
         retries     = 5
-        startPeriod = 120
+        startPeriod = 180
       }
 
       environment = [
