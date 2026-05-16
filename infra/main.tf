@@ -72,8 +72,8 @@ resource "aws_security_group" "app" {
 
   # Frontend accesible desde internet
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 8080
+    to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -229,6 +229,14 @@ resource "aws_cloudwatch_log_group" "ecs" {
   retention_in_days = 7
 }
 
+resource "null_resource" "wait_for_mysql" {
+  depends_on = [aws_instance.mysql]
+
+  provisioner "local-exec" {
+    command = "sleep 180"
+  }
+}
+
 ############################
 # ECS CLUSTER
 ############################
@@ -380,7 +388,7 @@ resource "aws_ecs_task_definition" "app" {
       image = "${aws_ecr_repository.frontend.repository_url}:latest"
 
       portMappings = [
-        { containerPort = 80 }
+        { containerPort = 8080 }
       ]
 
       dependsOn = [
@@ -411,6 +419,7 @@ resource "aws_ecs_service" "app" {
   task_definition = aws_ecs_task_definition.app.arn
   launch_type     = "FARGATE"
   desired_count   = 1
+  depends_on = [null_resource.wait_for_mysql]
 
   force_new_deployment = true
 
