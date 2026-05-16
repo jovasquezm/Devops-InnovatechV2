@@ -390,6 +390,14 @@ resource "aws_ecs_task_definition" "app" {
       portMappings = [
         { containerPort = 8080 }
       ]
+       healthCheck = {
+          command     = ["CMD-SHELL", "wget -qO- http://localhost:8080 || exit 1"]
+          interval    = 30
+          timeout     = 5
+          retries     = 3
+          startPeriod = 30
+        }
+
 
       dependsOn = [
         { containerName = "ms-ventas",    condition = "START" },
