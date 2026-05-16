@@ -66,59 +66,10 @@ resource "aws_route_table_association" "public" {
 ############################
 
 # SG principal: frontend (80) + microservicios (8081, 8082)
-resource "aws_security_group" "app" {
-  name   = "${var.project_name}-sg-app"
+resource "aws_security_group" "main" {
+  name   = "${var.project_name}-sg"
   vpc_id = aws_vpc.main.id
-
-  # Frontend accesible desde internet
-  ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # ms-ventas — solo desde dentro de la VPC
-  ingress {
-    from_port   = 8081
-    to_port     = 8081
-    protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
-  }
-
-  # ms-despachos — solo desde dentro de la VPC
-  ingress {
-    from_port   = 8082
-    to_port     = 8082
-    protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.project_name}-sg-app"
-  }
-}
-
-# SG para la EC2 de MySQL — solo acepta 3306 desde el SG de la app
-resource "aws_security_group" "mysql" {
-  name   = "${var.project_name}-sg-mysql"
-  vpc_id = aws_vpc.main.id
-
-  ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = [aws_security_group.app.id]
-  }
-
-  # SSH para administración ( puede removerse en producción)
+#SSH
   ingress {
     from_port   = 22
     to_port     = 22
@@ -126,17 +77,52 @@ resource "aws_security_group" "mysql" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8081
+    to_port     = 8081
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8082
+    to_port     = 8082
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  tags = {
-    Name = "${var.project_name}-sg-mysql"
-  }
 }
+
+  # MySQL solo accesible desde el mismo SG
+  resource "aws_security_group_rule" "mysql_internal" {
+    type                     = "ingress"
+    from_port                = 3306
+    to_port                  = 3306
+    protocol                 = "tcp"
+    security_group_id        = aws_security_group.main.id
+    source_security_group_id = aws_security_group.main.id
+  }
+
 
 ############################
 # ECR — 3 repositorios
@@ -176,7 +162,7 @@ resource "aws_instance" "mysql" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = "t3.micro"
   subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.mysql.id]
+  vpc_security_group_ids = [aws_security_group.main.id]
   key_name               = var.key_pair_name
 
   root_block_device {
@@ -186,20 +172,18 @@ resource "aws_instance" "mysql" {
 
   user_data = <<-EOF
     #!/bin/bash
-
     yum update -y
     yum install -y docker
-
     systemctl start docker
     systemctl enable docker
 
-    # Esperar a que Docker esté listo
     until docker info > /dev/null 2>&1; do
       echo "Esperando Docker..."
       sleep 3
     done
 
-    # Levantar MySQL con volumen para persistencia
+    docker system prune -af
+
     docker run -d \
       --name mysql \
       --restart unless-stopped \
@@ -210,11 +194,10 @@ resource "aws_instance" "mysql" {
       -p 3306:3306 \
       --log-opt max-size=10m \
       --log-opt max-file=3 \
-      mysql:8 \
+      mysql:8-oracle \
       --bind-address=0.0.0.0 \
       --performance-schema=OFF
   EOF
-
   tags = {
     Name = "${var.project_name}-mysql"
   }
@@ -435,8 +418,8 @@ resource "aws_ecs_service" "app" {
   deployment_maximum_percent         = 100
 
   network_configuration {
-    subnets          = [aws_subnet.public.id]
-    security_groups  = [aws_security_group.app.id]
-    assign_public_ip = true
+  subnets          = [aws_subnet.public.id]
+  security_groups  = [aws_security_group.main.id]
+  assign_public_ip = true
   }
 }
