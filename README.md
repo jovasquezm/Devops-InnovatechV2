@@ -6,18 +6,18 @@ Este repositorio contiene el diseño, gestión y despliegue automatizado de la i
 
 ```text
 Devops-InnovatechV2/
-├── frontend/               # Código fuente, dependencias y Dockerfile del Frontend
-├── backend-1/              # Código fuente y Dockerfile del primer microservicio Backend
-├── backend-2/              # Código fuente y Dockerfile del segundo microservicio Backend
-├── infra/                  # Código de Terraform para la infraestructura AWS
-│   ├── main.tf             # Definición de recursos (VPC, ECS, ECR, etc.)
-│   ├── providers.tf        # Configuración del proveedor de AWS
-│   ├── variables.tf        # Definición de variables globales
-│   └── outputs.tf          # Salidas del despliegue (URLs, IPs, IDs)
-├── .github/workflows/      # Automatización CI/CD
-│   └── cd.yml              # Pipeline de GitHub Actions para el despliegue en ECS
-├── docker-compose.yml      # Configuración para pruebas en ambiente local
-└── README.md               # Documentación del proyecto
+├── front_despacho/             # Código fuente, dependencias y Dockerfile del Frontend
+├── back-Despachos_SpringBoot/  # Código fuente y Dockerfile del microservicio de Despachos
+├── back-Ventas_SpringBoot/     # Código fuente y Dockerfile del microservicio de Ventas
+├── infra/                      # Código de Terraform para la infraestructura AWS
+│   ├── main.tf                 # Definición de recursos (VPC, ECS, ECR, etc.)
+│   ├── providers.tf            # Configuración del proveedor de AWS
+│   ├── variables.tf            # Definición de variables globales
+│   └── outputs.tf              # Salidas del despliegue (URLs, IPs, IDs)
+├── .github/workflows/          # Automatización CI/CD
+│   └── cd.yml                  # Pipeline de GitHub Actions para el despliegue en ECS
+├── docker-compose.yml          # Configuración para pruebas en ambiente local
+└── README.md                   # Documentación del proyecto
 ```
 ### 🧭 Diagrama de arquitectura
 <img width="1024" height="528" alt="unnamed" src="https://github.com/user-attachments/assets/ba7aaaa0-c230-4915-b165-3b5c27262e9d" />
