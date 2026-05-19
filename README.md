@@ -1,8 +1,3 @@
-# Innovatech Chile - DevOps Infrastructure with Terraform & AWS
-
-Este repositorio contiene el diseño, gestión y despliegue automatizado de la infraestructura en la nube para 
-**Innovatech Chile**. El proyecto implementa una arquitectura de microservicios 
-contenedorizados mediante un enfoque moderno de Infraestructura como Código (IoC) y Continuous Deployment (CD).
 
 # Innovatech Chile - DevOps Infrastructure with Terraform & AWS
 
@@ -25,7 +20,7 @@ Devops-InnovatechV2/
 ├── docker-compose.yml      # Configuración para pruebas en ambiente local
 └── README.md               # Documentación del proyecto
 
-Requisitos Previos
+#Requisitos Previos
 Antes de comenzar, asegúrate de contar con las siguientes herramientas instaladas y configuradas:
 
 *Terraform CLI (Versión >= 1.0)
