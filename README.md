@@ -6,6 +6,9 @@ Este repositorio contiene el diseño, gestión y despliegue automatizado de la i
 
 ```text
 Devops-InnovatechV2/
+├── frontend/               # Código fuente, dependencias y Dockerfile del Frontend
+├── backend-1/              # Código fuente y Dockerfile del primer microservicio Backend
+├── backend-2/              # Código fuente y Dockerfile del segundo microservicio Backend
 ├── infra/                  # Código de Terraform para la infraestructura AWS
 │   ├── main.tf             # Definición de recursos (VPC, ECS, ECR, etc.)
 │   ├── providers.tf        # Configuración del proveedor de AWS
