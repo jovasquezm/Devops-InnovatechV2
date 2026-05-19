@@ -4,6 +4,12 @@ Este repositorio contiene el diseño, gestión y despliegue automatizado de la i
 **Innovatech Chile**. El proyecto implementa una arquitectura de microservicios 
 contenedorizados mediante un enfoque moderno de Infraestructura como Código (IoC) y Continuous Deployment (CD).
 
+# Innovatech Chile - DevOps Infrastructure with Terraform & AWS
+
+Este repositorio contiene el diseño, gestión y despliegue automatizado de la infraestructura en la nube para 
+**Innovatech Chile**. El proyecto implementa una arquitectura de microservicios 
+contenedorizados mediante un enfoque moderno de Infraestructura como Código (IoC) y Continuous Deployment (CD).
+
 
 ####Estructura del Proyecto#####
 
@@ -104,5 +110,5 @@ aws ecs describe-services \
   --query "services[0].runningCount"
 
 
-<img width="760" height="762" alt="115199e8-5541-49b9-83dd-afbded40590d" src="https://github.com/user-attachments/assets/b85e60de-67d8-4022-9b6a-7f8a141d90c9" />
+
 
