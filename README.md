@@ -2,12 +2,13 @@
 
 Este repositorio contiene el diseño, gestión y despliegue automatizado de la infraestructura en la nube para *Innovatech Chile*. El proyecto implementa una arquitectura de microservicios contenedorizados mediante un enfoque moderno de Infraestructura como Código (IaC) e Integración continua/Despliegue continuo (CD).
 
-Trabajar con la rama Deploy!
-
 ### 🧭 Estructura del Proyecto
 
 ```text
 Devops-InnovatechV2/
+├── frontend/               # Código fuente, dependencias y Dockerfile del Frontend
+├── backend-1/              # Código fuente y Dockerfile del primer microservicio Backend
+├── backend-2/              # Código fuente y Dockerfile del segundo microservicio Backend
 ├── infra/                  # Código de Terraform para la infraestructura AWS
 │   ├── main.tf             # Definición de recursos (VPC, ECS, ECR, etc.)
 │   ├── providers.tf        # Configuración del proveedor de AWS
@@ -130,7 +131,6 @@ docker compose down
 
 #### Despliegue Automatizado en AWS (GitHub Actions)
 El pipeline de Despliegue Continuo (CD) hacia Amazon ECS se activa de forma automatizada al realizar un push a la rama dedicada de deployment (deploy).
-* Requisito previo: actualizar secretos de github con las credenciales de aws
 
 ```bash
 # Consolidar los cambios en la rama principal e integrarlos a la rama de despliegue
