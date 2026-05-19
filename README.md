@@ -1,9 +1,11 @@
 
 # Innovatech Chile - DevOps Infrastructure with Terraform & AWS
 
+FAVOR VER RAMA DEPLOY
+
 Este repositorio contiene el diseño, gestión y despliegue automatizado de la infraestructura en la nube para 
 **Innovatech Chile**. El proyecto implementa una arquitectura de microservicios 
-contenedorizados mediante un enfoque moderno de Infraestructura como Código (IoC) y Continuous Deployment (CD).
+contenedorizados mediante un enfoque moderno de Infraestructura como Código (IaC) e _Integración continua/Despliegue continuo (CD).
 
 
 ####Estructura del Proyecto#####
@@ -26,25 +28,27 @@ Devops-InnovatechV2/
 Antes de comenzar, asegúrate de contar con las siguientes herramientas instaladas y configuradas:
 
 ```text
-*Terraform CLI (Versión >= 1.0)
+* Terraform CLI (Versión >= 1.0)
 
-*AWS CLI configurado con tus credenciales
+* AWS CLI configurado con tus credenciales
 
-*Docker & Docker Compose
+* Docker Desktop
 
-*Una cuenta activa de AWS Academy 
+* Una cuenta activa de AWS Academy 
 
 ```
-# Flujo de Uso (Terraform
-Este flujo solo se ejecuta una vez al inicio para montar la infraestructura, no en cada presentación. Crea todo en AWS.
+# Flujo de Uso (Terraform)
+Este flujo se ejecuta una vez al inicio para montar la infraestructura. Crea todo en AWS.
 
-```text
-Bash
+```bash
 # Cambiar al directorio de infraestructura
 cd infra/
 
 # Inicializar y descargar los plugins de AWS (solo la primera vez)
 terraform init
+
+#Ingresar las credenciales de AWS academy
+aws configure
 
 # Mostrar qué recursos se van a crear, sin aplicar cambios aún
 terraform plan
@@ -52,9 +56,10 @@ terraform plan
 # Crear la infraestructura real en AWS
 terraform apply
 
-Al terminar el apply, Terraform imprimirá las variables de salida.
-Puedes consultarlas en cualquier momento con:
-Bash
+#Al terminar el apply, Terraform imprimirá las variables de salida.
+#Puedes consultarlas en cualquier momento con:
+
+terraform outputs
 
 # Mostrar las URLs de ECR, IPs y nombres de cluster
 terraform output
@@ -64,8 +69,7 @@ terraform output
 Para realizar la subida de las imágenes de los contenedores a los repositorios privados de AWS (ECR), 
 se debe autenticar el cliente local de Docker utilizando el ID de la cuenta de AWS obtenido en los outputs del paso anterior:
 
-```text
-Bash
+``` bash
 aws ecr get-login-password --region us-east-1 \
   | docker login --username AWS --password-stdin \
   <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
@@ -77,8 +81,7 @@ aws ecr get-login-password --region us-east-1 \
 Antes de realizar el despliegue en la nube, se recomienda validar el correcto 
 funcionamiento de los contenedores en el entorno local (Frontend, Microservicios y Base de Datos).
 
-```text
-Bash
+``` bash
 # Regresar a la raíz del proyecto
 cd ..
 # Configurar el archivo de variables de entorno locales
@@ -92,14 +95,14 @@ docker compose up --build
 
 *Interactuar con la aplicación: Abrir el navegador en http://localhost
 
-*Detener el entorno (preservando datos de la BD): docker compose down
+*Detener el entorno (preservando datos de la BD):
+docker compose down
 
 ```
 # Despliegue Automatizado en AWS (GitHub Actions)
 El pipeline de Despliegue Continuo (CD) hacia Amazon ECS se activa de forma automatizada al realizar un push a la rama dedicada de deployment (deploy).
 
-```text
-Bash
+``` bash
 # Consolidar los cambios en la rama principal e integrarlos a la rama de despliegue
 git checkout main
 git pull
@@ -112,8 +115,7 @@ git push origin deploy
 # Verificación en Producción (AWS)
 Para comprobar que los servicios se han desplegado correctamente en la nube y están corriendo:
 
-```text
-Bash
+``` bash
 # Verificar que las tareas de ECS se encuentren estables y en ejecución
 aws ecs describe-services \
   --cluster innovatech-cluster \
