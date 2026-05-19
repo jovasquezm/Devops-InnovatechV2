@@ -16,6 +16,10 @@ Devops-InnovatechV2/
 ├── docker-compose.yml      # Configuración para pruebas en ambiente local
 └── README.md               # Documentación del proyecto
 ```
+### 🧭 Diagrama de arquitectura
+<img width="1024" height="528" alt="unnamed" src="https://github.com/user-attachments/assets/ba7aaaa0-c230-4915-b165-3b5c27262e9d" />
+
+
 
 ### 🐳 1. Contenedorización (Frontend y Backend)
 
