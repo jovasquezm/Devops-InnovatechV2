@@ -5,7 +5,7 @@ Este repositorio contiene el diseño, gestión y despliegue automatizado de la i
 ### 🧭 Estructura del Proyecto
 
 ```text
-DDevops-InnovatechV2/
+Devops-InnovatechV2/
 ├── front_despacho/             # Código fuente, dependencias y Dockerfile del Frontend
 ├── back-Despachos_SpringBoot/  # Código fuente y Dockerfile del microservicio de Despachos
 ├── back-Ventas_SpringBoot/     # Código fuente y Dockerfile del microservicio de Ventas
