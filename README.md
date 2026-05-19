@@ -130,6 +130,7 @@ docker compose down
 
 #### Despliegue Automatizado en AWS (GitHub Actions)
 El pipeline de Despliegue Continuo (CD) hacia Amazon ECS se activa de forma automatizada al realizar un push a la rama dedicada de deployment (deploy).
+* Requisito previo: actualizar secretos de github con las credenciales de aws
 
 ```bash
 # Consolidar los cambios en la rama principal e integrarlos a la rama de despliegue
