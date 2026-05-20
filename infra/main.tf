@@ -91,19 +91,6 @@ resource "aws_security_group" "main" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    from_port   = 8081
-    to_port     = 8081
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 8082
-    to_port     = 8082
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   egress {
     from_port   = 0
@@ -111,6 +98,24 @@ resource "aws_security_group" "main" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_security_group_rule" "ms_ventas_internal" {
+  type                     = "ingress"
+  from_port                = 8081
+  to_port                  = 8081
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.main.id
+  source_security_group_id = aws_security_group.main.id
+}
+
+resource "aws_security_group_rule" "ms_despachos_internal" {
+  type                     = "ingress"
+  from_port                = 8082
+  to_port                  = 8082
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.main.id
+  source_security_group_id = aws_security_group.main.id
 }
 
   # MySQL solo accesible desde el mismo SG
@@ -216,7 +221,7 @@ resource "null_resource" "wait_for_mysql" {
   depends_on = [aws_instance.mysql]
 
   provisioner "local-exec" {
-    command = "sleep 180"
+    command = "sleep 60"
   }
 }
 
