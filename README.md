@@ -2,6 +2,7 @@
 
 Este repositorio contiene el diseño, gestión y despliegue automatizado de la infraestructura en la nube para *Innovatech Chile*. El proyecto implementa una arquitectura de microservicios contenedorizados mediante un enfoque moderno de Infraestructura como Código (IaC) e Integración continua/Despliegue continuo (CD).
 
+Utilizar Rama Deploy como se es especificado en el documento de entrega
 ### 🧭 Estructura del Proyecto
 
 ```text
