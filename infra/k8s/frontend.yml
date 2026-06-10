@@ -1,0 +1,35 @@
+# DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: frontend-innovatech:latest
+          imagePullPolicy: Never
+          ports:              
+            - containerPort: 8080
+---
+# SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
+  type: NodePort #Node port expone el servicio fuera del cluster kubernetes

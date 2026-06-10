@@ -1,0 +1,45 @@
+# DEPLOYMENT
+apiVersion: apps/v1 #nombre declarado de la app
+kind: Deployment #significa que estoy configurando el contenedor
+metadata: #del nodo
+  name: mysql
+spec: #comienza la configuración del contenedor
+  replicas: 1
+  selector: #permite generar un label
+    matchLabels:
+      app: mysql
+  template: #plantilla de la imagen
+    metadata: #del pod
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306 #puerto interno
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+            - name: MYSQL_DATABASE
+              value: innovatech
+
+
+
+
+#con esto dividimos el yml en 2, lo toma como dos archivos, pero es uno, pero son dos, pero es uno, pero son dos, pero es uno.
+---
+# SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+    - port: 3306 #puerto expuesto
+      targetPort: 3306 #puerto interno
+  type: ClusterIP #Solamente accesible dentro del cluster kubernetes.
+
+

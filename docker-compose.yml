@@ -80,7 +80,7 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_PROFILES_ACTIVE: prod
     ports:
-      - "8082:8082"
+      - "8083:8083"
     networks:
       - backend-net
       - frontend-net
