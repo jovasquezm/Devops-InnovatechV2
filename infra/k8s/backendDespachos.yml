@@ -15,10 +15,10 @@ spec: #comienza la configuración del contenedor
     spec:
       containers:
         - name: backend-despachos
-          image: backend-despachos-innnovatech:latest #debería ser el nombre de una imagen que ya existe
+          image: backend-despachos-innovatech:latest #debería ser el nombre de una imagen que ya existe
           imagePullPolicy: Never #no intentes descargar la imagen desde docker hub
           ports:
-            - containerPort: 8080
+            - containerPort: 8082
           env:
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql:3306/innovatech
@@ -38,6 +38,8 @@ spec:
   selector:
     app: backend-despachos
   ports:
-    - port: 8080
-      targetPort: 8080
-  type: ClusterIP
+    - port: 8082
+      targetPort: 8082
+      nodePort: 30082
+  type: NodePort
+  
