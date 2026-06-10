@@ -7,11 +7,11 @@ spec: #comienza la configuración del contenedor
   replicas: 2
   selector:
     matchLabels:
-      app: backend
+      app: backend-ventas
   template:
     metadata:
       labels:
-        app: backend
+        app: backend-ventas
     spec:
       containers:
         - name: backend-ventas
