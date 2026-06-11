@@ -1,0 +1,15 @@
+# Variables de entorno
+.env
+*.env
+
+# Terraform
+# Ignorar el directorio de descargas temporales y plugins en cualquier parte del proyecto
+**/.terraform/
+
+# Ignorar los archivos de estado (¡Crítico para no filtrar contraseñas!)
+**/*.tfstate
+**/*.tfstate.backup
+**/.terraform.tfstate.lock.info
+
+# Ignorar el archivo de variables reales
+**/*.tfvars

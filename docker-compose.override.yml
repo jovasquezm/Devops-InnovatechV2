@@ -1,0 +1,20 @@
+# ─────────────────────────────────────────────
+# docker-compose.override.yml
+# Se aplica AUTOMÁTICAMENTE sobre docker-compose.yml
+# cuando ejecutas: docker compose up --build
+#
+# Uso: desarrollo local, sin necesidad de AWS ni ECR
+# ─────────────────────────────────────────────
+
+services:
+
+  ms-ventas:
+    image: innovatech-ms-ventas:local   # Nombre local simple, sin ECR
+
+  ms-despachos:
+    image: innovatech-ms-despachos:local
+
+  frontend:
+    image: innovatech-frontend:local
+    ports:
+      - "80:8080"

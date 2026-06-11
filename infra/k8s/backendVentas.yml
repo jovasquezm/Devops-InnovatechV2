@@ -1,0 +1,44 @@
+# DEPLOYMENT
+apiVersion: apps/v1 #nombre declarado de la app
+kind: Deployment
+metadata:
+  name: backend-ventas
+spec: #comienza la configuración del contenedor
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-ventas
+  template:
+    metadata:
+      labels:
+        app: backend-ventas
+    spec:
+      containers:
+        - name: backend-ventas
+          image: 654654373802.dkr.ecr.us-east-1.amazonaws.com/innovatech-ms-ventas:latest #debería ser el nombre de una imagen que ya existe
+          imagePullPolicy: Always #no intentes descargar la imagen desde docker hub
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/innovatech
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+
+
+---
+# SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-ventas
+spec:
+  selector:
+    app: backend-ventas
+  ports:
+    - port: 8081
+      targetPort: 8081
+      nodePort: 30081
+  type: NodePort

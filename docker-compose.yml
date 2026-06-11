@@ -1,0 +1,127 @@
+version: "3.9"
+
+# ═══════════════════════════════════════════════
+#  NOTA: Este docker-compose sirve para desarrollo
+#  local. En producción, ECS usa las imágenes
+#  publicadas en ECR directamente (no este archivo).
+# ═══════════════════════════════════════════════
+
+services:
+
+  # ─────────────────────────────────────────────
+  # BASE DE DATOS — MySQL
+  # ─────────────────────────────────────────────
+  mysql:
+    image: mysql:8.3
+    container_name: innovatech-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    # Puerto 3306 NO expuesto al host — solo accesible dentro de backend-net
+    volumes:
+      - mysql_data:/var/lib/mysql          # Named volume: persiste datos entre reinicios
+      - ./init-db:/docker-entrypoint-initdb.d  # Scripts SQL de inicialización (opcional)
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  # ─────────────────────────────────────────────
+  # MICROSERVICIO — Ventas (puerto 8081)
+  # ─────────────────────────────────────────────
+  ms-ventas:
+    build:
+      context: ./back-Ventas_SpringBoot/
+      dockerfile: Dockerfile
+    container_name: innovatech-ms-ventas
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy   # Espera a que MySQL esté listo
+    environment:
+      DB_ENDPOINT: mysql
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8081:8081"
+    networks:
+      - backend-net
+      - frontend-net
+
+  # ─────────────────────────────────────────────
+  # MICROSERVICIO — Despachos (puerto 8082)
+  # ─────────────────────────────────────────────
+  ms-despachos:
+    build:
+      context: ./back-Despachos_SpringBoot/
+      dockerfile: Dockerfile
+    container_name: innovatech-ms-despachos
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_ENDPOINT: mysql
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8083:8083"
+    networks:
+      - backend-net
+      - frontend-net
+
+  # ─────────────────────────────────────────────
+  # FRONTEND — (puerto 80)
+  # ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./front_despacho
+      dockerfile: Dockerfile
+      args:
+        VITE_API_VENTAS_URL:    ${VITE_API_VENTAS_URL:-http://localhost:8081}
+        VITE_API_DESPACHOS_URL: ${VITE_API_DESPACHOS_URL:-http://localhost:8082}
+    container_name: innovatech-frontend
+    restart: unless-stopped
+    depends_on:
+      - ms-ventas
+      - ms-despachos
+    networks:
+      - frontend-net
+
+# ═══════════════════════════════════════════════
+#  VOLÚMENES — Named volumes
+#  Justificación: portables, no dependen de rutas
+#  del host. mysql_data persiste los datos de la BD
+#  entre reinicios de contenedores.
+# ═══════════════════════════════════════════════
+volumes:
+  mysql_data:
+    driver: local
+
+# ═══════════════════════════════════════════════
+#  REDES
+#  Separación frontend-net / backend-net:
+#  - MySQL solo es accesible desde backend-net (no expuesto al frontend)
+#  - Los microservicios pertenecen a ambas redes (puente)
+#  - El frontend solo conoce la red frontend-net
+# ═══════════════════════════════════════════════
+networks:
+  backend-net:
+    driver: bridge         # Red interna: MySQL ↔ Microservicios
+  frontend-net:
+    driver: bridge         # Red semi-pública: Frontend ↔ Microservicios

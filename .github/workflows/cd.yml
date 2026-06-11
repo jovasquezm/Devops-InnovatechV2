@@ -1,0 +1,88 @@
+name: CI/CD — Innovatech Chile
+
+# Trigger: solo al hacer push sobre la rama deploy
+#cmabiosqafkldshfds
+
+on:
+  push:
+    branches:
+      - deploy
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+  # Nombres generados por Terraform: "${var.project_name}-cluster" y "${var.project_name}-service"
+  ECS_CLUSTER: innovatech-cluster
+  ECS_SERVICE: innovatech-service
+
+jobs:
+  deploy:
+    name: Build → Push ECR → Deploy ECS
+    runs-on: ubuntu-latest
+
+    steps:
+  
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      # ── 2. Credenciales AWS ──
+      - name: Configurar credenciales AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token:     ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      # ── 3. Login en ECR ───────────────────────
+      - name: Login en Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ── 4. Build y Push — ms-ventas ──────────
+      - name: Build y Push ms-ventas
+        run: |
+          docker build --platform linux/amd64 \
+            -t ${{ env.ECR_REGISTRY }}/innovatech-ms-ventas:${{ github.sha }} \
+            -t ${{ env.ECR_REGISTRY }}/innovatech-ms-ventas:latest \
+            ./back-Ventas_SpringBoot/
+          docker push ${{ env.ECR_REGISTRY }}/innovatech-ms-ventas:${{ github.sha }}
+          docker push ${{ env.ECR_REGISTRY }}/innovatech-ms-ventas:latest
+
+      # ── 5. Build y Push — ms-despachos ───────
+      - name: Build y Push ms-despachos
+        run: |
+          docker build --platform linux/amd64 \
+            -t ${{ env.ECR_REGISTRY }}/innovatech-ms-despachos:${{ github.sha }} \
+            -t ${{ env.ECR_REGISTRY }}/innovatech-ms-despachos:latest \
+            ./back-Despachos_SpringBoot/
+          docker push ${{ env.ECR_REGISTRY }}/innovatech-ms-despachos:${{ github.sha }}
+          docker push ${{ env.ECR_REGISTRY }}/innovatech-ms-despachos:latest
+
+      # ── 6. Build y Push — frontend ────────────
+      - name: Build y Push frontend
+        run: |
+          docker build --platform linux/amd64 \
+            --build-arg VITE_API_VENTAS_URL=${{ secrets.VITE_API_VENTAS_URL }} \
+            --build-arg VITE_API_DESPACHOS_URL=${{ secrets.VITE_API_DESPACHOS_URL }} \
+            -t ${{ env.ECR_REGISTRY }}/innovatech-frontend:${{ github.sha }} \
+            -t ${{ env.ECR_REGISTRY }}/innovatech-frontend:latest \
+            ./front_despacho
+          docker push ${{ env.ECR_REGISTRY }}/innovatech-frontend:${{ github.sha }}
+          docker push ${{ env.ECR_REGISTRY }}/innovatech-frontend:latest
+
+      # ── 7. Redespliegue en ECS ────────────────
+      - name: Redesplegar servicio en ECS
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE }} \
+            --force-new-deployment
+
+      # ── 8. Esperar estabilización ─────────────
+      - name: Verificar despliegue
+        run: |
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_SERVICE }}

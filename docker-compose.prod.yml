@@ -1,0 +1,19 @@
+# ─────────────────────────────────────────────
+# docker-compose.prod.yml
+# Se aplica SOLO cuando se especifica explícitamente:
+# docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+#
+# Uso: producción / validación con imágenes desde ECR
+# Requiere: variable ECR_REGISTRY definida en .env
+# ─────────────────────────────────────────────
+
+services:
+
+  ms-ventas:
+    image: ${ECR_REGISTRY}/innovatech-ms-ventas:latest
+
+  ms-despachos:
+    image: ${ECR_REGISTRY}/innovatech-ms-despachos:latest
+
+  frontend:
+    image: ${ECR_REGISTRY}/innovatech-frontend:latest
