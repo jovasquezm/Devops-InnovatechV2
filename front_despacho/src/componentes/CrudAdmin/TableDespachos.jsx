@@ -8,7 +8,7 @@ export const TableDespachos = () => {
 
   const despacho = async () => {
     await axios
-      .get(`${import.meta.env.VITE_API_DESPACHOS_URL}/api/v1/despachos`, {
+      .get(`/api/despachos/api/v1/despachos`, {
         headers:{
               'Content-Type': 'application/json',
               'Accept': 'application/json'

@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: frontend-innovatech:latest
-          imagePullPolicy: Never
+          image: 654654373802.dkr.ecr.us-east-1.amazonaws.com/innovatech-frontend:latest
+          imagePullPolicy: Always
           ports:              
             - containerPort: 8080
 ---

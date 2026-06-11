@@ -16,7 +16,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
 
     try {
       await axios.put(
-        `${import.meta.env.VITE_API_DESPACHOS_URL}/api/v1/despachos`,
+        `/api/despachos/api/v1/despachos`,
         jsonData,
         {
           headers:{

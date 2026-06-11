@@ -15,8 +15,8 @@ spec: #comienza la configuración del contenedor
     spec:
       containers:
         - name: backend-despachos
-          image: backend-despachos-innovatech:latest #debería ser el nombre de una imagen que ya existe
-          imagePullPolicy: Never #no intentes descargar la imagen desde docker hub
+          image: 654654373802.dkr.ecr.us-east-1.amazonaws.com/innovatech-ms-despachos:latest #debería ser el nombre de una imagen que ya existe
+          imagePullPolicy: Always #no intentes descargar la imagen desde docker hub
           ports:
             - containerPort: 8082
           env:
