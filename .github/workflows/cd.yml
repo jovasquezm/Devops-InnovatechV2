@@ -95,7 +95,7 @@ jobs:
       # ── 11. Aplicar manifiestos ───────────────
       - name: Aplicar manifiestos de Kubernetes
         run: |
-          kubectl apply -f k8s/
+          kubectl apply -f infra/k8s/
 
       # ── 12. Actualizar imágenes ───────────────
       - name: Actualizar imágenes en EKS
