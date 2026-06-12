@@ -1,29 +1,25 @@
-
 name: CI/CD — Innovatech Chile
- 
-# Trigger: solo al hacer push sobre la rama deploy
+
 on:
   push:
     branches:
       - deploy
   workflow_dispatch:
- 
-env:
-  AWS_REGION: us-east-1
-  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
-  EKS_CLUSTER: innovatech-eks-cluster
- 
+
 jobs:
   deploy:
     name: Build → Push ECR → Deploy EKS
     runs-on: ubuntu-latest
- 
+    env:
+      AWS_REGION: us-east-1
+      CLUSTER_NAME: innovatech-eks-cluster
+
     steps:
- 
+
       # ── 1. Checkout ───────────────────────────
       - name: Checkout del código
         uses: actions/checkout@v4
- 
+
       # ── 2. Credenciales AWS ───────────────────
       - name: Configurar credenciales AWS
         uses: aws-actions/configure-aws-credentials@v4
@@ -32,90 +28,106 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token:     ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region:            ${{ env.AWS_REGION }}
- 
+
       # ── 3. Login en ECR ───────────────────────
       - name: Login en Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
- 
-      # ── 4. Build y Push — ms-ventas ──────────
+
+      # ── 4. Rescatar Account ID dinámicamente ──
+      - name: Obtener AWS Account ID
+        run: |
+          echo "ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)" >> $GITHUB_ENV
+
+      # ── 5. Definir URLs de ECR ────────────────
+      - name: Definir URLs de ECR
+        run: |
+          echo "ECR_VENTAS=${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/innovatech-ms-ventas" >> $GITHUB_ENV
+          echo "ECR_DESPACHOS=${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/innovatech-ms-despachos" >> $GITHUB_ENV
+          echo "ECR_FRONTEND=${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/innovatech-frontend" >> $GITHUB_ENV
+
+      # ── 6. Obtener URL del ALB ────────────────
+      - name: Obtener URL del ALB
+        run: |
+          echo "ALB_DNS=$(aws elbv2 describe-load-balancers \
+            --region $AWS_REGION \
+            --query 'LoadBalancers[?contains(LoadBalancerName, `innovatech`)].DNSName' \
+            --output text)" >> $GITHUB_ENV
+
+      # ── 7. Build y Push — ms-ventas ──────────
       - name: Build y Push ms-ventas
         run: |
           docker build --platform linux/amd64 \
-            -t ${{ env.ECR_REGISTRY }}/innovatech-ms-ventas:${{ github.sha }} \
-            -t ${{ env.ECR_REGISTRY }}/innovatech-ms-ventas:latest \
+            -t $ECR_VENTAS:${{ github.sha }} \
+            -t $ECR_VENTAS:latest \
             ./back-Ventas_SpringBoot/
-          docker push ${{ env.ECR_REGISTRY }}/innovatech-ms-ventas:${{ github.sha }}
-          docker push ${{ env.ECR_REGISTRY }}/innovatech-ms-ventas:latest
- 
-      # ── 5. Build y Push — ms-despachos ───────
+          docker push $ECR_VENTAS:${{ github.sha }}
+          docker push $ECR_VENTAS:latest
+
+      # ── 8. Build y Push — ms-despachos ───────
       - name: Build y Push ms-despachos
         run: |
           docker build --platform linux/amd64 \
-            -t ${{ env.ECR_REGISTRY }}/innovatech-ms-despachos:${{ github.sha }} \
-            -t ${{ env.ECR_REGISTRY }}/innovatech-ms-despachos:latest \
+            -t $ECR_DESPACHOS:${{ github.sha }} \
+            -t $ECR_DESPACHOS:latest \
             ./back-Despachos_SpringBoot/
-          docker push ${{ env.ECR_REGISTRY }}/innovatech-ms-despachos:${{ github.sha }}
-          docker push ${{ env.ECR_REGISTRY }}/innovatech-ms-despachos:latest
- 
-      # ── 6. Build y Push — frontend ────────────
+          docker push $ECR_DESPACHOS:${{ github.sha }}
+          docker push $ECR_DESPACHOS:latest
+
+      # ── 9. Build y Push — frontend ────────────
       - name: Build y Push frontend
         run: |
           docker build --platform linux/amd64 \
-            --build-arg VITE_API_VENTAS_URL="${{ secrets.VITE_API_VENTAS_URL }}" \
-            --build-arg VITE_API_DESPACHOS_URL="${{ secrets.VITE_API_DESPACHOS_URL }}" \
-            -t ${{ env.ECR_REGISTRY }}/innovatech-frontend:${{ github.sha }} \
-            -t ${{ env.ECR_REGISTRY }}/innovatech-frontend:latest \
-            ./front_despacho
-          docker push ${{ env.ECR_REGISTRY }}/innovatech-frontend:${{ github.sha }}
-          docker push ${{ env.ECR_REGISTRY }}/innovatech-frontend:latest
- 
-      # ── 7. Configurar kubectl para EKS ────────
+            --build-arg VITE_API_VENTAS_URL=http://${ALB_DNS} \
+            --build-arg VITE_API_DESPACHOS_URL=http://${ALB_DNS} \
+            -t $ECR_FRONTEND:${{ github.sha }} \
+            -t $ECR_FRONTEND:latest \
+            ./front_despacho/
+          docker push $ECR_FRONTEND:${{ github.sha }}
+          docker push $ECR_FRONTEND:latest
+
+      # ── 10. Configurar kubectl ────────────────
       - name: Configurar kubeconfig para EKS
         run: |
           aws eks update-kubeconfig \
-            --region ${{ env.AWS_REGION }} \
-            --name ${{ env.EKS_CLUSTER }}
- 
-      # ── 8. Actualizar imágenes en el clúster ──
+            --region $AWS_REGION \
+            --name $CLUSTER_NAME
+
+      # ── 11. Aplicar manifiestos ───────────────
+      - name: Aplicar manifiestos de Kubernetes
+        run: |
+          kubectl apply -f k8s/
+
+      # ── 12. Actualizar imágenes ───────────────
       - name: Actualizar imágenes en EKS
         run: |
           kubectl set image deployment/frontend \
-            frontend=${{ env.ECR_REGISTRY }}/innovatech-frontend:${{ github.sha }}
- 
+            frontend=$ECR_FRONTEND:${{ github.sha }}
+
           kubectl set image deployment/backend-ventas \
-            backend-ventas=${{ env.ECR_REGISTRY }}/innovatech-ms-ventas:${{ github.sha }}
- 
+            backend-ventas=$ECR_VENTAS:${{ github.sha }}
+
           kubectl set image deployment/backend-despachos \
-            backend-despachos=${{ env.ECR_REGISTRY }}/innovatech-ms-despachos:${{ github.sha }}
- 
-      # ── 9. Verificar despliegue ───────────────
+            backend-despachos=$ECR_DESPACHOS:${{ github.sha }}
+
+      # ── 13. Verificar rollout ─────────────────
       - name: Verificar rollout de deployments
         run: |
           kubectl rollout status deployment/frontend --timeout=120s
           kubectl rollout status deployment/backend-ventas --timeout=120s
           kubectl rollout status deployment/backend-despachos --timeout=120s
 
-     # ── 10. Mostrar URL pública del ALB ──────
+      # ── 14. Mostrar URL pública ───────────────
       - name: URL de la aplicación
         run: |
-          ALB_DNS=$(aws elbv2 describe-load-balancers \
-            --region us-east-1 \
-            --query 'LoadBalancers[*].DNSName' \
-            --output text)
-
-          # Imprimir carácter por carácter para evitar masking
-          URL="http://${ALB_DNS}"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "✅ DESPLIEGUE EXITOSO — Innovatech Chile"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
           python3 -c "
-          import sys
-          url = '${ALB_DNS}'
-          print('🌐 Frontend:     http://' + url)
-          print('📦 ms-ventas:    http://' + url + '/api/ventas/')
-          print('🚚 ms-despachos: http://' + url + '/api/despachos/')
+          alb = '${ALB_DNS}'
+          print('🌐 Frontend:     http://' + alb)
+          print('📦 ms-ventas:    http://' + alb + '/api/ventas/')
+          print('🚚 ms-despachos: http://' + alb + '/api/despachos/')
           "
           echo ""
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
