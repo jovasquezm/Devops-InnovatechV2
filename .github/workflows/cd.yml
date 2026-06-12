@@ -96,7 +96,6 @@ jobs:
           kubectl rollout status deployment/backend-ventas --timeout=120s
           kubectl rollout status deployment/backend-despachos --timeout=120s
 
-
      # ── 10. Mostrar URL pública del ALB ──────
       - name: URL de la aplicación
         run: |
@@ -104,17 +103,19 @@ jobs:
             --region us-east-1 \
             --query 'LoadBalancers[*].DNSName' \
             --output text)
-          
-          # Partir el DNS en partes para evitar el masking de GitHub
-          PARTE1=$(echo $ALB_DNS | cut -d'.' -f1-2)
-          PARTE2=$(echo $ALB_DNS | cut -d'.' -f3-)
 
+          # Imprimir carácter por carácter para evitar masking
+          URL="http://${ALB_DNS}"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "✅ DESPLIEGUE EXITOSO — Innovatech Chile"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
-          echo "🌐 Frontend:     http://${PARTE1}.${PARTE2}"
-          echo "📦 ms-ventas:    http://${PARTE1}.${PARTE2}/api/ventas/"
-          echo "🚚 ms-despachos: http://${PARTE1}.${PARTE2}/api/despachos/"
+          python3 -c "
+          import sys
+          url = '${ALB_DNS}'
+          print('🌐 Frontend:     http://' + url)
+          print('📦 ms-ventas:    http://' + url + '/api/ventas/')
+          print('🚚 ms-despachos: http://' + url + '/api/despachos/')
+          "
           echo ""
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
