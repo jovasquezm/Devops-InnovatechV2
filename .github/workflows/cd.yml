@@ -120,14 +120,14 @@ jobs:
       - name: URL de la aplicación
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "✅ DESPLIEGUE EXITOSO — Innovatech Chile"
+          echo " DESPLIEGUE EXITOSO — Innovatech Chile"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
           python3 -c "
           alb = '${ALB_DNS}'
-          print('🌐 Frontend:     http://' + alb)
-          print('📦 ms-ventas:    http://' + alb + '/api/ventas/')
-          print('🚚 ms-despachos: http://' + alb + '/api/despachos/')
+          print(' Frontend:     http://' + alb)
+          print(' ms-ventas:    http://' + alb + '/api/ventas/')
+          print(' ms-despachos: http://' + alb + '/api/despachos/')
           "
           echo ""
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
