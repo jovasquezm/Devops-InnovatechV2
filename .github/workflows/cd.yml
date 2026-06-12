@@ -95,4 +95,23 @@ jobs:
           kubectl rollout status deployment/frontend --timeout=120s
           kubectl rollout status deployment/backend-ventas --timeout=120s
           kubectl rollout status deployment/backend-despachos --timeout=120s
+
+
+          # ── 10. Mostrar URL pública del ALB ──────
+      - name: URL de la aplicación
+        run: |
+          ALB_DNS=$(aws elbv2 describe-load-balancers \
+            --region us-east-1 \
+            --query 'LoadBalancers[*].DNSName' \
+            --output text)
+          
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ DESPLIEGUE EXITOSO — Innovatech Chile"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "🌐 Frontend:    http://$ALB_DNS"
+          echo "📦 ms-ventas:   http://$ALB_DNS/api/ventas/"
+          echo "🚚 ms-despachos: http://$ALB_DNS/api/despachos/"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
  
