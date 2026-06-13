@@ -131,3 +131,24 @@ jobs:
           "
           echo ""
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      # ── 15. Obtener logs de Kubernetes ────────
+      - name: Obtener logs de los pods (Diagnóstico)
+        if: always() # Esto asegura que los logs se impriman INCLUSO si el despliegue falla
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo " LOGS DE FRONTEND"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          kubectl logs deployment/frontend --tail=50 --max-log-requests=10 || echo "No se pudieron obtener los logs"
+
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo " LOGS DE MS-VENTAS"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          kubectl logs deployment/backend-ventas --tail=50 --max-log-requests=10 || echo "No se pudieron obtener los logs"
+
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo " LOGS DE MS-DESPACHOS"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          kubectl logs deployment/backend-despachos --tail=50 --max-log-requests=10 || echo "No se pudieron obtener los logs"
