@@ -16,7 +16,7 @@ jobs:
 
     steps:
 
-      # ── 1. Checkout ───────────────────────────o
+      # ── 1. Checkout ───────────────────────────O
       - name: Checkout del código
         uses: actions/checkout@v4
 
